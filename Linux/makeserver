@@ -1,0 +1,57 @@
+# gmake makefile
+ 
+EXE  := ./run/Server.linux
+
+CC := gcc
+
+NPSS_TOP :=/mnt/e/linux/NPSS/NPSS.linux.2.7.2
+
+CFLAGS:= -g -O0 
+
+SRC_DIR1 = ./src
+SRC_DIR2 = ./src/msgfiles
+SRC_DIR3 = $(NPSS_TOP)/DLMdevkit/Executive/include 
+SRC_DIR4 = $(NPSS_TOP)/DLMdevkit/util/src/Generic
+ 
+OBJ_DIR=linux_x86_64
+
+ 
+INCDIR	 = -I$(SRC_DIR1) -I$(SRC_DIR2) -I$(SRC_DIR3) -I$(SRC_DIR4)  
+VPATH	 = $(SRC_DIR1):$(SRC_DIR2):$(SRC_DIR3):$(SRC_DIR4)
+
+
+DLL_LINKER      = $(CC)
+DLL_LINKER_OPTS = -m64 -Wall -Wextra -Werror -g
+DLL_LINKER_LIBS = -lpthread  -lstdc++ -g
+
+CPP_OBJ = \
+	$(OBJ_DIR)/Server.o 
+ 
+	
+OBJ =			\
+	$(CPP_OBJ)
+	
+.PHONY: all
+all : $(OBJ_DIR) $(EXE)
+
+clean:
+	rm -f $(OBJ_DIR)/*.o   
+
+$(EXE): $(OBJ)
+	@echo "********************"
+	@echo making $@
+	@echo "********************"
+#$(DLL_LINKER) $(DLL_LINKER_OPTS) -o $@ $(OBJ) $(DLL_LINKER_LIBS) -Wl,-z,defs
+	$(DLL_LINKER) $(DLL_LINKER_OPTS) -o $@ $(OBJ) $(DLL_LINKER_LIBS)
+	@echo "*******************************************"
+	@echo $@ is now up to date
+	@echo "*******************************************"
+
+$(OBJ_DIR):
+	@echo "Creating $(OBJ_DIR)"
+	perl -e 'use File::Path; if ( ! -d "$(OBJ_DIR)" ) { mkpath( "$(OBJ_DIR)" ); }'
+
+	# uncomment this block if C_OBJ is not zero length
+$(CPP_OBJ):$(OBJ_DIR)/%.o:$(SRC_DIR1)/%.cpp
+	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $@
+  
